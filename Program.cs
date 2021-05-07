@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace modules_n_csharp
 {
     class Program
     {
-        static void Main(string[] args)
+        private static HttpClient httpClient = new HttpClient();
+        static async Task Main(string[] args)
         {
-
-
             Console.WriteLine("------------------Mutable------------------------");
             //Values are mutable
             int x = 10;
@@ -109,8 +110,68 @@ namespace modules_n_csharp
             Console.WriteLine(user.firstname);
             Console.WriteLine(user.lastname);
             Console.WriteLine(user.nationality);
+            
+            //Dynamic 
+            Console.WriteLine("--------------------------dynamic typing ----------------------------");
+            Calculator<double> calculator= new Calculator<double>();
+            dynamic sum=calculator.sum(10.9,12.9);
+            Console.WriteLine("Sum is"+sum);
+
+            //Optional parameters
+            Console.WriteLine("--------------------------Optional parameters ----------------------------");
+            Lecturers lecturers= new Lecturers(200.0);
+            Console.WriteLine("Sum is: "+lecturers.name+" "+lecturers.wages);
+            Lecturers lecturers2= new Lecturers(name:"James",wages:200.0);
+
+            //Asynchronous
+            Console.WriteLine("--------------------------Asynchronous----------------------------");
+
+            // synchronization , asynchronization
+            // T1 & T2, waits for t1 to finish
+            // OS dictionary
+
+            Program program= new Program();
+            await program.checkin();
+            await program.fetchUserData();
+            await fetchResultsData();
+        }
+
+        //Asynch waits for Task1 to finish for it to start
+        
+        public async Task checkin(){
+          Console.WriteLine("Working on Task 1");
+          
+          await Task.Delay(10000);
+        //   await Task.Run(()=>{
+        //      long x=1000000000000000000;
+        //      long y=1000000000000000000;
+        //      long z= x*y;
+        //      long k= z*x*y*x*y*z*x*y*x*y;
+        //   });    
+          Console.WriteLine("Working on Task 2");
+        }
+
+        //Asynch fetching data
+
+        public async Task<dynamic> fetchUserData(){
+            //https://randomuser.me/api/?results=10
+            string link="https://jsonplaceholder.typicode.com/todos";
+            var user= await httpClient.GetStringAsync(link);
+            Console.WriteLine(user);
+            return user;
 
         }
+
+        //Anonymous function with Async
+
+        public static Func<Task<dynamic>> fetchResultsData= async delegate(){
+            //https://randomuser.me/api/?results=10
+            string link="https://randomuser.me/api/?results=10";
+            var results= await httpClient.GetStringAsync(link);
+            Console.WriteLine(results);
+            return results;
+        };
+        
         public static List<Products> getProducts()
         {
 
@@ -124,11 +185,17 @@ namespace modules_n_csharp
             return products;
         }
 
+
     }
 
     public delegate List<Products> GetProductsDelegate();
 
+
+
 }
+
+
+
 
 public delegate List<Products> GetProductsDelegate();
 
@@ -172,6 +239,30 @@ public class Students
         return tution * TUTION_RATE;
     }
 
+
+}
+
+class Lecturers{
+   public string name;
+   public double wages;
+
+   public Lecturers(double wages,string name="Default Lecturer"){
+       this.name=name;
+       this.wages=wages;
+   }
+}
+
+class Calculator<T>
+{
+    //dynamic dataype
+
+    public T sum(T a, T b)
+    {
+        dynamic x=a;
+        dynamic y=b;
+
+        return x + y;
+    }
 
 }
 
