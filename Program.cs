@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace modules_n_csharp
@@ -132,8 +133,116 @@ namespace modules_n_csharp
 
             Program program= new Program();
             await program.checkin();
-            await program.fetchUserData();
+            await fetchUserData();
             await fetchResultsData();
+
+            //Asynchronous Pending tasks
+            Console.WriteLine("--------------------------Moving next within Pending tasks----------------------------");
+
+            IAsyncEnumerator<int> asyncEnumerator = pendingTasks(1, 4).GetAsyncEnumerator();
+            
+            while( await asyncEnumerator.MoveNextAsync()){
+                Console.WriteLine($"Current task value is :{asyncEnumerator.Current}");
+            }
+
+            //Tasks, threads, Jobs
+            Console.WriteLine("--------------------------Custom task types revisited----------------------------");
+           
+            Thread thread= new Thread(new ThreadStart(thread1));
+            thread.Start();
+            await doPurchaseJob1();
+
+            //Run multiple tasks at the same time
+            //Tasks, threads, Jobs
+
+            Console.WriteLine("--------------------------Run multiple tasks at the same time----------------------------");
+            List<Task> tasks = new List<Task>();
+            tasks.Add(Task.Run(async()=>{
+                 await Task.Delay(1000);
+                 Console.WriteLine("Task1");
+            }));
+            tasks.Add(Task.Run(async()=>{
+                await Task.Delay(2000);
+                Console.WriteLine("Task2");
+            }));
+            tasks.Add(Task.Run(async()=>{
+                //await Task.Delay(3000);
+                await fetchUserData();
+                Console.WriteLine("Task3");
+            }));
+            tasks.Add(Task.Run(async()=>{
+                await Task.Delay(2000);
+                Console.WriteLine("Task4");
+            }));
+
+            Task.WaitAll(tasks.ToArray());
+        }
+        
+        public static void thread1(){
+             Console.WriteLine("First fly to Madagasca Before purchase");
+             Thread.Sleep(5000);
+        }
+
+        static async Task doPurchaseJob1(){
+            //Task1
+            await Task.Run(async()=>{
+                Thread.Sleep(5000);
+                Console.WriteLine("Flight to dubai && purchase");
+            });
+            //Task2
+            await Task.Run(()=>{
+                Thread.Sleep(5000);
+                Console.WriteLine("Drive to Mozambique && purchase");
+            });
+            //Task3
+            await Task.Run(()=>{
+                Thread.Sleep(5000);
+                Console.WriteLine("Ride to Pretoria && purchase");
+            });
+        }
+        static async Task doPurchaseJob2(){
+            //Task1
+            await Task.Run(async()=>{
+                await Task.Delay(1000);
+                Console.WriteLine("Flight to France");
+            });
+            //Task2
+            await Task.Run(async()=>{
+                await Task.Delay(1000);
+                Console.WriteLine("Drive to Congo");
+            });
+            //Task3
+            await Task.Run(async()=>{
+                await Task.Delay(1000);
+                Console.WriteLine("Ride to Entebbe");
+            });
+        }
+
+        //Async pending tasks IAsyncEnumerable
+        static async IAsyncEnumerable<int> pendingTasks(int start,int iterator){
+
+             for(int i=0; i<iterator;i++){
+                 //Example of user where i is 2.Cannot be allocated resources 
+                 //Insufficient amount.Mocking real life scenarios of pending tasks
+                 if(i==2){
+                    Console.WriteLine("------------------Your amount is insufficient !-----------------");
+                 }else{
+
+                     await Task.Run(async()=>{
+                    //task1
+                    // await Task.Delay(1000);
+                    // //task2
+                    // await Task.Delay(1000);
+                    // //task3
+                    // await Task.Delay(1000);
+                   
+                    await fetchUserData();
+                 });
+                 }
+                 
+                 yield return start++;
+             }
+
         }
 
         //Asynch waits for Task1 to finish for it to start
@@ -153,11 +262,15 @@ namespace modules_n_csharp
 
         //Asynch fetching data
 
-        public async Task<dynamic> fetchUserData(){
+        public static async Task<dynamic> fetchUserData(){
             //https://randomuser.me/api/?results=10
             string link="https://jsonplaceholder.typicode.com/todos";
+            //Delay for 5 secs before fetching data
+            await Task.Delay(5000);
             var user= await httpClient.GetStringAsync(link);
-            Console.WriteLine(user);
+            Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Task start");
+            //Console.WriteLine(user);
+            Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Task end");
             return user;
 
         }
