@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace modules_n_csharp
 {
+
     class Program
     {
         private static HttpClient httpClient = new HttpClient();
@@ -148,9 +150,9 @@ namespace modules_n_csharp
             //Tasks, threads, Jobs
             Console.WriteLine("--------------------------Custom task types revisited----------------------------");
            
-            Thread thread= new Thread(new ThreadStart(thread1));
-            thread.Start();
-            await doPurchaseJob1();
+            // Thread thread= new Thread(new ThreadStart(thread1));
+            // thread.Start();
+            // await doPurchaseJob1();
 
             //Run multiple tasks at the same time
             //Tasks, threads, Jobs
@@ -175,8 +177,56 @@ namespace modules_n_csharp
                 Console.WriteLine("Task4");
             }));
 
-            Task.WaitAll(tasks.ToArray());
-        }
+            // Task.WaitAll(tasks.ToArray());
+
+       //Convariance and contravariance
+       Console.WriteLine("-------------------------------------Convariance and contravariance------------------------------");
+
+       //------------contravariance
+
+        // Cow cow= new Mammars();
+
+        Mammars mammars= new Cow();
+
+       // Mammars mammars1= new Animal();
+        
+        Animal animal= new Mammars();
+
+       //------------convariance
+        IEnumerable<Animal> animals= new List<Mammars>();
+
+        //out , in
+
+        //SmartPhone<PhoneTypes> smartPhones= new List<IApple>();
+
+        Console.WriteLine("-------------------------------------Convariance and contravariance------------------------------");
+
+        string studentDetails= String.Format(" Hey Mr {0} and {1}","James","John");
+        long workerId=11100000;
+        string workerDetails= String.Format(" Hey My ID is {0}",workerId);
+       // Decimal 
+       //double x= 30.00000000000000000000000000000000E25;
+        Decimal wages= 5000000000000000.50m;
+
+        //5,000,000,000,000,000
+
+        string engineerWages= String.Format("James wages is {0:N0}",wages);
+
+        Console.WriteLine(studentDetails);
+        Console.WriteLine(wages);
+
+       String[] students={"Victor", "Faith", "Khoza"};
+       Decimal[] marks =new Decimal[] {80000000,8000000,90000000};
+       String[] positions =new String[] {"Senior softwareEng ","Senior softwareEng","Senior softwareEng"};
+
+       var stringBuilder= new System.Text.StringBuilder();
+       stringBuilder.Append(String.Format("{0,5} {1,8} {2,7} \n\n","Engineers","Salary","Position"));
+
+       for(int i=0;i<students.Length;i++){
+           stringBuilder.Append(String.Format("{0,5} {1,8:N0} {2,7} \n\n",students[i],marks[i],positions[i]));
+       }
+        Console.WriteLine(stringBuilder);
+      }
         
         public static void thread1(){
              Console.WriteLine("First fly to Madagasca Before purchase");
@@ -378,6 +428,48 @@ class Calculator<T>
     }
 
 }
+
+class Animal{
+    // public static void Greetings(){
+    //     Console.WriteLine("Animal greeting");
+    // }
+}
+class Mammars : Animal{
+    //  public static void Greetings(){
+    //     Console.WriteLine("Animal greeting");
+    // }
+}
+class NonMammars: Animal{
+    //  public static void Greetings(){
+    //     Console.WriteLine("Animal greeting");
+    // }
+}
+
+class Cow: Mammars{
+    //  public static void Greetings(){
+    //     Console.WriteLine("Animal greeting");
+    // }
+}
+
+interface IPhones{
+
+}
+interface CellPhones<in T> : IPhones {
+
+} 
+
+interface SmartPhone<in T>: IPhones{
+
+}
+
+interface IApple :SmartPhone<PhoneTypes> {
+
+}
+
+class PhoneTypes{
+
+}
+
 
 
 
